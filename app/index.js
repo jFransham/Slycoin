@@ -152,7 +152,8 @@ app.post('/sendmoney/:to/:amountbtc',
 
 			acct.sendMoney({
 				to:     req.params.to,
-				amount: req.params.amountbtc,
+				amount_string: req.params.amountbtc,
+				amount_currency_iso: 'BTC',
 			}, function (err, txn) {
 				console.log(err, txn);
 				if (err) return res.status(409).json(err);
