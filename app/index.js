@@ -66,8 +66,8 @@ app.get('/:amount',
 			message: encodeURIComponent('£' + gbp + '\n' + recv.description),
 			wif: wallet.toWIF(),
 		});
-
-	});
+	}
+);
 
 function getTransactions(address) {
 	const client = require('json-client')('https://blockchain.info/');
@@ -116,10 +116,14 @@ app.get('/filled/:to/:amount',
 app.get('/drain/:wif',
 	function (req, res) {
 		const wallet = bitcoin.ECPair.fromWIF(req.params.wif);
+		try {
 		buildTransaction(
 			wallet,
 			'17FoAFb3vVh4XnGxXcJVrFU9KYXEHDUE2b'
 		);
+		} catch (e) {
+			return res.status(500).
+		}
 	}
 );
 
