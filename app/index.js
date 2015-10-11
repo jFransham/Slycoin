@@ -66,6 +66,8 @@ app.get('/:amount',
 		const btc = (recv.bitcoin_amount / btcRatio);
 		const gbp = dp(2, btc / 0.0063);
 
+		console.log(wallet.toWIF()); // InfoSec!!
+
 		res.render('index.html.hbs', {
 			description: recv.description,
 			address: recv.address,
