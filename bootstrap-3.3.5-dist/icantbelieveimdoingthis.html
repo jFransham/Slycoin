@@ -1,0 +1,97 @@
+<!doctype html>
+
+<html>
+    <head>
+<!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+
+<!-- Optional theme -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css">
+
+<script src="http://code.jquery.com/jquery-2.1.4.min.js"></script>
+<!-- Latest compiled and minified JavaScript -->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+
+<style>
+input[type=number]::-webkit-inner-spin-button, 
+input[type=number]::-webkit-outer-spin-button { 
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    margin: 0; 
+}
+</style>
+
+<script>
+var rate;
+
+$.getJSON("https://bitpay.com/api/rates/gbp", function(data)
+    {
+        rate = data.rate
+    });
+
+$(document).ready(function(){
+    $(".copyMe").keyup(function()
+        {
+            $(".copyTo").val(($(this).val()/rate*1e6).toFixed(2));
+        });
+});
+
+</script>
+
+
+    </head>
+    <body>
+<nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" 
+aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="#">Slycoin</a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+      </div>
+    </nav>
+
+    <!-- Main jumbotron for a primary marketing message or call to action -->
+    <div class="jumbotron">
+      <div class="container">
+        <h1></h1>
+        <p>Point of sale for cryptocurrency and standard currency.</p>
+        <p><a class="btn btn-primary btn-lg" href="#" role="button">Learn more &raquo;</a></p>
+      </div>
+    </div>
+
+    <div class="container">
+      <!-- Example row of columns -->
+      <div class="navbar-header">
+        <div class="col-ld-9">
+          <h2>Enter value you would like to receive</h2>
+          <div class="input-group">
+                <span class="input-group-addon">GBP</span>
+                <input class="copyMe" type="text" class="col-xs-3" />
+          </div>
+          <p>
+          <div class="input-group">
+                <span class="input-group-addon">BIT</span>
+                <input class="copyTo" type="text" class="col-xs-3" disabled="disabled"/>
+          </div>
+          <p>
+          <p><a class="btn btn-default" href="#" role="button">Proceed &raquo;</a></p>
+       </div>
+      </div>
+
+      <hr>
+
+<!--      <footer>
+        <p>&copy; Company 2014</p>
+        </footer> -->
+    </div>
+    </body>
+</html>
+
