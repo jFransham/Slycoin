@@ -45,18 +45,17 @@ app.get('/:amount',
 	function (req, res) {
 		const to = "Big Stu's Beer and Truck Emporium";
 		const wallet = bitcoin.ECPair.makeRandom({ rng: function() {
-				const str =
-					(
-						require('crypto')
-						.Hash('MD5')
-						.update(
-							new Buffer(to +
-								Math.random() *
-								Date.now().toString()
-							)
+				const str = (
+					require('crypto')
+					.Hash('MD5')
+					.update(
+						new Buffer(to +
+							Math.random() *
+							Date.now().toString()
 						)
-						.digest('hex')
-					).toString().substring(0, 32);
+					)
+					.digest('hex')
+				).toString().substring(0, 32);
 
 				return new Buffer(str, 'ascii');
 			}
@@ -70,7 +69,7 @@ app.get('/:amount',
 		res.render('index.html.hbs', {
 			description: recv.description,
 			address: recv.address,
-			satoshi: recv.bitcoin_amount,
+			satoshi: recv.bitcoin_amount / 100,
 			amount: btc,
 			gbp: gbp,
 			friendly: encodeURIComponent(to),
@@ -135,10 +134,34 @@ app.get('/drain/:wif',
 		} catch (e) {
 			return res.status(500).json(e);
 		}
+		res.status(200).end();
 	}
 );
 
-app.listen(process.env.PORT || 8080);
+app.post('/sendmoney/:to/:amountbtc',
+	function(req, res) {
+		var client = new require('coinbase').Client({
+			apiKey: 'SFXPYFHPG31zcevC',
+			apiSecret: '31KIerFLmPFBfbLQhzQuE9sS9rpdHJOc',
+		});
+
+		client.getAccounts(function (err, accounts) {
+			console.log(err, accounts);
+
+			const acct = accounts.filter(function (a) { return a.id === '55402c78cf8d08b259013275'; })[0];
+
+			acct.sendMoney({
+				to:     req.params.to,
+				amount: req.params.amountbtc,
+			}, function (err, txn) {
+				console.log(err, txn);
+				if (err) return res.status(409).end();
+
+				res.status(204).end();
+			});
+		});
+	}
+);
 
 function buildReceiver(amount, address) {
 	return {
@@ -150,3 +173,5 @@ function buildReceiver(amount, address) {
 		email: 'bigjohnsbeerstop@aol.com',
 	};
 }
+
+app.listen(process.env.PORT || 8080);

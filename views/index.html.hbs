@@ -17,7 +17,7 @@
 	<body>
 		<div id="qrcode"></div>
 		<p id="desc">{{description}}</p>
-		<a href="drain/{{{wif}}}">Drain</a>
+		<a id="drain" href="drain/{{{wif}}}"></a>
 		<script>
 			var address =   "{{{address}}}";
 			var stripeUrl = "bitcoin:{{{address}}}?amount={{{amount}}}&label={{{friendly}}}&message={{{message}}}";
@@ -32,6 +32,7 @@
 										'<img src="http://www.reliableresourcing.co.uk/' +
 											'wp-content/uploads/2015/03/green-tick-with-man.png" />'
 									);
+									$("#drain").html('Drain');
 								},
 								'204': function() { setTimeout(filled, 1000); },
 							},

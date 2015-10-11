@@ -11,7 +11,8 @@
 		"express-handlebars": "^2.0.1",
 		"stripe": "^4.0.0",
 		"json-client": "^0.4.6",
-		"bitcoinjs-lib": "^2.1.1"
+		"bitcoinjs-lib": "^2.1.1",
+		"coinbase": "^1.0.4"
 	},
 
 	"engines": {
