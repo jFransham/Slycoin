@@ -88,21 +88,18 @@ function getTransactions(address) {
 function buildTransaction(from_keypair, to_address) {
 	const transactionBuilder = new bitcoin.TransactionBuilder();
 	return getTransactions(from_keypair.getAddress()).then(function (trs) {
-		var tot = 0;
+		return require('json-client')('https://blockchain.info/q/')('get', 'getreceivedbyaddress/' + to_address + '?confirmations=0')
+			.then(function (val) {
+				var last = trs[trs.length - 1];
 
-		for (var i = 0; i < trs.length; i++) {
-			const val = trs[i].out
-						.map(function (a) { return a.value; })
-						.reduce(function (last, cur) { return last + cur; });
-			tot += val;
+				transactionBuilder.addInput(last.hash, 0);
+				transactionBuilder.addOutput(to_address, val);
+				transactionBuilder.sign(0, from_keypair);
 
-			transactionBuilder.addInput(trs[i].hash, val);
-		}
-
-		transactionBuilder.addOutput(to_address, tot);
-		transactionBuilder.sign(0, from_keypair);
-
-		return transactionBuilder.build().toHex();
+				return transactionBuilder.build().toHex();
+			}).then(function(h) {
+				return require('json-client')('https://blockchain.info/')('post', 'pushtx', { tx: h });
+			});
 	});
 }
 
