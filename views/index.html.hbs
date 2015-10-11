@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<title>
+			Point of sale test
+		</title>
+		<meta name="description" content="Slycoin point-of-sale test">
+		<meta name="author" content="Team Magick Schoolbus">
+		<link rel="stylesheet" href="css/styles.css?v=1.0">
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+		<script src="script/qr.js"></script>
+		<!--[if lt IE 9]>
+		<script src="http://html5shiv.googlecode.com/svn/trunk/html5.js">
+		</script>
+		<![endif]-->
+	</head>
+	<body>
+		<div id="qrcode"></div>
+		<p id="desc">{{description}}</p>
+		<script>
+			var address =   "{{{address}}}";
+			var stripeUrl = "bitcoin:{{{address}}}?amount={{{amount}}}&label={{{friendly}}}&message={{{message}}}";
+			new QRCode(document.getElementById('qrcode'),
+				stripeUrl);
+
+			function filled() {
+				$.ajax('/filled/' + address + '/{{{satoshi}}}',
+						{
+							statusCode: {
+								'200': function() {
+									$("#qrcode").html(
+										'<img src="http://www.reliableresourcing.co.uk/' +
+											'wp-content/uploads/2015/03/green-tick-with-man.png" />'
+									);
+								},
+								'204': function() { setTimeout(filled, 1000); },
+							},
+						});
+			}
+
+			filled();
+		</script>
+	</body>
+</html>

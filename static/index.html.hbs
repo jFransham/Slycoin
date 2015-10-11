@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<title>
+			Point of sale test
+		</title>
+		<meta name="description" content="Slycoin point-of-sale test">
+		<meta name="author" content="Team Magick Schoolbus">
+		<link rel="stylesheet" href="css/styles.css?v=1.0">
+		<!--[if lt IE 9]>
+		<script src="http://html5shiv.googlecode.com/svn/trunk/html5.js">
+		</script>
+		<![endif]-->
+	</head>
+	<body>
+		<script src="script/qr.js"></script>
+		<div id="qrcode"></div>
+		<script>
+			var stripeUrl = 'bitcoin:{{address}}?amount={{amount}}&fiat={{gbp}}&friendly={{friendly}}';
+			new QRCode(document.getElementById('qrcode'),
+					stripeUrl);
+		</script>
+	</body>
+</html>

@@ -1,0 +1,20 @@
+{
+	"main": "app/index.js",
+
+	"scripts": {
+		"start": "node app/index.js"
+	},
+
+	"dependencies": {
+		"body-parser": "^1.14.1",
+		"express": "^4.13.3",
+		"express-handlebars": "^2.0.1",
+		"stripe": "^4.0.0",
+		"json-client": "^0.4.6",
+		"bitcoinjs-lib": "^2.1.1"
+	},
+
+	"engines": {
+		"node": "^4.0.0"
+	}
+}
