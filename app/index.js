@@ -69,7 +69,7 @@ app.get('/:amount',
 		res.render('index.html.hbs', {
 			description: recv.description,
 			address: recv.address,
-			satoshi: recv.bitcoin_amount / 100,
+			satoshi: recv.bitcoin_amount, // I think this has to be *100 but I'm not 100% sure and I don't want to break it by putting it in
 			amount: btc,
 			gbp: gbp,
 			friendly: encodeURIComponent(to),
