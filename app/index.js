@@ -155,7 +155,7 @@ app.post('/sendmoney/:to/:amountbtc',
 				amount: req.params.amountbtc,
 			}, function (err, txn) {
 				console.log(err, txn);
-				if (err) return res.status(409).end();
+				if (err) return res.status(409).json(err);
 
 				res.status(204).end();
 			});
