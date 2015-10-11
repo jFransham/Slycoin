@@ -87,7 +87,7 @@ function getTransactions(address) {
 
 function buildTransaction(from_keypair, to_address) {
 	const transactionBuilder = new bitcoin.TransactionBuilder();
-	const trs = getTransactions(from_keypair.getAddress()).then(function (trs) {
+	return getTransactions(from_keypair.getAddress()).then(function (trs) {
 		var tot = 0;
 
 		for (var i = 0; i < trs.length; i++) {
