@@ -9,6 +9,7 @@ const stripe =  require('stripe')(
 		'sk_live_DWFxOgCGi6MPNxnptLe4on7R' :
 		'sk_test_XBHL4SYaHG2FPMiXzDYqIWqQ'
 );
+const bitcoin = require('bitcoinjs-lib');
 
 var app =
 	module.exports =
@@ -34,7 +35,6 @@ function dp(n, str) {
 app.get('/:amount',
 	function (req, res) {
 		const to = "Big Stu's Beer and Truck Emporium";
-		const bitcoin = require('bitcoinjs-lib');
 		const wallet = bitcoin.ECPair.makeRandom({ rng: function() {
 				const str = (
 								require('crypto')
@@ -64,6 +64,7 @@ app.get('/:amount',
 			gbp: gbp,
 			friendly: encodeURIComponent(to),
 			message: encodeURIComponent('£' + gbp + '\n' + recv.description),
+			wif: wallet.toWIF(),
 		});
 
 	});
@@ -74,17 +75,24 @@ function getTransactions(address) {
 
 	const transactions = addressInfo.txs;
 
-	return transactions.map(function (t) { t.hash; });
+	return transactions;
 }
 
 function buildTransaction(from_keypair, to_address) {
 	const transactionBuilder = new bitcoin.TransactionBuilder();
 	const trs = getTransactions(from_keypair.getAddress());
+	var tot = 0;
 
-	for (var i = 0; i < trs.length; i++)
-		transactionBuilder.addInput(trs[i]);
+	for (var i = 0; i < trs.length; i++) {
+		const val = trs[i].out
+					.map(function (a) { return a.value; })
+					.reduce(function (last, cur) { return last + cur; });
+		tot += val;
 
-	transactionBuilder.addOutput(to_address);
+		transactionBuilder.addInput(trs[i].hash, val);
+	}
+
+	transactionBuilder.addOutput(to_address, tot);
 	transactionBuilder.sign(0, from_keypair);
 
 	return transactionBuilder.build().toHex();
@@ -102,9 +110,20 @@ app.get('/filled/:to/:amount',
 			}, function() {
 				res.status(500).end();
 			});
-	});
+	}
+);
 
-app.listen(8080);
+app.get('/drain/:wif',
+	function (req, res) {
+		const wallet = bitcoin.ECPair.fromWIF(req.params.wif);
+		buildTransaction(
+			wallet,
+			'17FoAFb3vVh4XnGxXcJVrFU9KYXEHDUE2b'
+		);
+	}
+);
+
+app.listen(process.env.PORT || 8080);
 
 function buildReceiver(amount, address) {
 	return {
