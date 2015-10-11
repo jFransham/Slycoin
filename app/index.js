@@ -17,7 +17,10 @@ var app =
 
 app.use(express.static('static'));
 app.engine('.hbs', hbs({extname: '.hbs'}));
-app.set('view engine', 'handlebars');
+app.set(
+	'view engine',
+	'handlebars'
+);
 
 function dp(n, str) {
 	const spl = str.toString().split('.');
@@ -32,21 +35,29 @@ function dp(n, str) {
 	return output;
 }
 
+app.get('/',
+	function (req, res) {
+		res.render('icantbelieveimdoingthis.html.hbs');
+	}
+);
+
 app.get('/:amount',
 	function (req, res) {
 		const to = "Big Stu's Beer and Truck Emporium";
 		const wallet = bitcoin.ECPair.makeRandom({ rng: function() {
-				const str = (
-								require('crypto')
-								.Hash('MD5')
-								.update(
-									new Buffer(to +
-										Math.random() *
-										Date.now().toString()
-									)
-								)
-								.digest('hex')
-							).toString().substring(0, 32);
+				const str =
+					(
+						require('crypto')
+						.Hash('MD5')
+						.update(
+							new Buffer(to +
+								Math.random() *
+								Date.now().toString()
+							)
+						)
+						.digest('hex')
+					).toString().substring(0, 32);
+
 				return new Buffer(str, 'ascii');
 			}
 		});
@@ -122,7 +133,7 @@ app.get('/drain/:wif',
 			'17FoAFb3vVh4XnGxXcJVrFU9KYXEHDUE2b'
 		);
 		} catch (e) {
-			return res.status(500).
+			return res.status(500).json(e);
 		}
 	}
 );
