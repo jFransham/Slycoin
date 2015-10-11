@@ -123,6 +123,7 @@ app.get('/filled/:to/:amount',
 
 app.get('/drain/:wif',
 	function (req, res) {
+		const bitcoin = require('bitcoinjs-lib');
 		const wallet = bitcoin.ECPair.fromWIF(req.params.wif);
 		buildTransaction(
 			wallet,
