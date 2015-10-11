@@ -19,38 +19,41 @@ app.engine('.hbs', hbs({extname: '.hbs'}));
 app.set('view engine', 'handlebars');
 
 function dp(n, str) {
-	const spl =    str.toString().split('.');
-	const output = spl[0] + '.' + spl[1].substring(0,2);
+	const spl = str.toString().split('.');
+	if (spl.length < 2)
+		return str;
+
+	const output =
+		spl[0] +
+		spl[1] ?
+			('.' + spl[1].substring(0,2)) :
+			'';
 	return output;
-}
-
-function seed() {
-	const params = {
-		jsonrpc: '2.0',
-		method: 'generateUUIDs',
-		params: {
-			apiKey: '00000000-0000-0000-0000-000000000000',
-			n: 1,
-		},
-		id: Date.now.toString(),
-	};
-
-	const client = require('json-client')('https://api.random.org/json-rpc/1/invoke');
-	client('get', '/', null, params).then(function (out) {
-
-		});
 }
 
 app.get('/:amount',
 	function (req, res) {
-		const seed = new Buffer(Date.now().toString() + 'BTC' + Date.now().toString() + 'BTC');
+		const to = "Big Stu's Beer and Truck Emporium";
 		const bitcoin = require('bitcoinjs-lib');
-		const wallet = bitcoin.ECPair.makeRandom({ rng: function() { return seed; } });
-		const address = address.getAddress();
+		const wallet = bitcoin.ECPair.makeRandom({ rng: function() {
+				const str = (
+								require('crypto')
+								.Hash('MD5')
+								.update(
+									new Buffer(to +
+										Math.random() *
+										Date.now().toString()
+									)
+								)
+								.digest('hex')
+							).toString().substring(0, 32);
+				return new Buffer(str, 'ascii');
+			}
+		});
+		const address = wallet.getAddress();
 		const recv = buildReceiver(req.params.amount, address);
 		const btcRatio = 1000000;
 		const btc = (recv.bitcoin_amount / btcRatio);
-		const to = "Big Stu's Beer and Truck Emporium";
 		const gbp = dp(2, btc / 0.0063);
 
 		res.render('index.html.hbs', {
@@ -63,11 +66,10 @@ app.get('/:amount',
 			message: encodeURIComponent('£' + gbp + '\n' + recv.description),
 		});
 
-		const transactionBuilder = new bitcoin.TransactionBuilder();
 	});
 
 function getTransactions(address) {
-	const client = require('json-client')('https://blockchain.info/);
+	const client = require('json-client')('https://blockchain.info/');
 	const addressInfo = client('get', 'address/' + address + '?format=json');
 
 	const transactions = addressInfo.txs;
@@ -76,6 +78,16 @@ function getTransactions(address) {
 }
 
 function buildTransaction(from_keypair, to_address) {
+	const transactionBuilder = new bitcoin.TransactionBuilder();
+	const trs = getTransactions(from_keypair.getAddress());
+
+	for (var i = 0; i < trs.length; i++)
+		transactionBuilder.addInput(trs[i]);
+
+	transactionBuilder.addOutput(to_address);
+	transactionBuilder.sign(0, from_keypair);
+
+	return transactionBuilder.build().toHex();
 }
 
 app.get('/filled/:to/:amount',
